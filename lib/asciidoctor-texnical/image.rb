@@ -27,26 +27,24 @@ class Image
     height = 100
 
     equ_id ||= %(stem-#{::Digest::MD5.hexdigest input})
-    img_target_filename = %(#{equ_id}.png)
+    img_filename = %(#{equ_id}.png)
     # img_filepth = ::File.join handler.image_output_dir, img_target_filename
     content = "#{HEADER}\\begin{document} #{input}\\end{document} "
-    Dir.mktmpdir do |dir|
-      Dir.chdir(dir) do
-        puts "Dir: #{dir}"
-        File.open('eq.tex', 'w') { |file| file.write(content) }
-        Open3.popen3('latex -interaction=batchmode eq.tex') do |_stdin, _stdout, _stderr, wait_thr|
-          exit_status = wait_thr.value
-          puts "Exit status: #{exit_status}"
-        end
-        Open3.popen3("dvipng -o #{img_target_filename} -T tight -z9 -D 400 eq.dvi") do |_stdin, _stdout, _stderr, wait_thr|
-          exit_status = wait_thr.value
-          puts "Exit status: #{exit_status}"
-        end
-        FileUtils.cp(img_target_filename, handler.image_output_dir)
+    target_path = File.absolute_path handler.image_target_dir
+    dir = Dir.mktmpdir
+    tpth = File.join dir, img_filename
+    Dir.chdir(dir) do
+      File.open('eq.tex', 'w') { |file| file.write(content) }
+      Open3.popen3('latex -interaction=batchmode eq.tex') do |_stdin, _stdout, _stderr, wait_thr|
+        raise ValueError if wait_thr.value != 0
       end
+      Open3.popen3("dvipng -o #{tpth} -T tight -z9 -D 400 eq.dvi") do |_stdin, _stdout, _stderr, wait_thr|
+        raise ValueError if wait_thr.value != 0
+      end
+      FileUtils.cp(tpth, target_path)
     end
 
-    img_target = ::File.join handler.image_target_dir, img_target_filename unless handler.image_target_dir == '.'
+    img_target = ::File.join handler.image_target_dir, img_filename
     Image.new input, width, height, img_target
   end
 

@@ -10,9 +10,8 @@ class Mathematical
   LATEX_INLINE_MACRO_RX = /\\?latexmath:([a-z,]*)\[(.*?[^\\])\]/m.freeze
   LINE_FEED = %(\n)
 
-  def initialize(ppi, image_output_dir, image_target_dir)
+  def initialize(ppi, image_target_dir)
     @ppi = ppi
-    @image_output_dir = image_output_dir
     @image_target_dir = image_target_dir
   end
 

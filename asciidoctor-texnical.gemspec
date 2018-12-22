@@ -19,4 +19,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "asciidoctor", "~> 1.5", "= 1.5.0"
   s.add_runtime_dependency "asciidoctor-pdf"
   s.add_development_dependency "rspec"
+  s.add_development_dependency "rake"
 end
