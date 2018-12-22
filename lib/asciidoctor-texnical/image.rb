@@ -45,7 +45,7 @@ class Image
 
     img_target = ::File.join handler.image_target_dir, img_filename
     width, height = extract_dimensions_from_output(stdout)
-    Image.new input, width, height, img_target
+    Image.new input, width, height, img_target, img_filename
   end
 
   def self.extract_dimensions_from_output(captured_stdout)
@@ -54,16 +54,18 @@ class Image
     [width[0][0].to_i, height[0][0].to_i]
   end
 
-  def initialize(input, width, height, img_target)
+  def initialize(input, width, height, img_target, img_filename)
     @width = width
     @height = height
     @input = input
     @target_path = img_target
+    @filename = img_filename
   end
 
   attr_reader :width
   attr_reader :height
   attr_reader :target_path
+  attr_reader :filename
 
   def raw_data
     nil

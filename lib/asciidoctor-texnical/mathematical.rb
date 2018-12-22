@@ -37,7 +37,7 @@ class Mathematical
     result = Image.generate_block stem.content, stem.id, self
 
     alt_text = stem.attr 'alt', %($$#{stem.content}$$)
-    attrs = { 'target' => result.target_path,
+    attrs = { 'target' => result.filename,
               'alt' => alt_text,
               'align' => 'center',
               'width' => result.width.to_s,
@@ -53,13 +53,13 @@ class Mathematical
 
   def handle_inline_stem(node, text)
     document = node.document
-    to_html = document.basebackend? "html"
-    support_stem_prefix = document.attr? "stem", "latexmath"
+    to_html = document.basebackend? 'html'
+    support_stem_prefix = document.attr? 'stem', 'latexmath'
     stem_rx = support_stem_prefix ? STEM_INLINE_MACRO_RX : LATEX_INLINE_MACRO_RX
 
     source_modified = false
     # TODO: skip passthroughs in the source (e.g., +stem:[x^2]+)
-    if !text.nil? && (text.include? ":") && ((support_stem_prefix && (text.include? "stem:")) || (text.include? "latexmath:"))
+    if !text.nil? && (text.include? ':') && ((support_stem_prefix && (text.include? 'stem:')) || (text.include? 'latexmath:'))
       text.gsub!(stem_rx) do
         if (m = $LAST_MATCH_INFO)[0].start_with? '\\'
           next m[0][1..-1]
@@ -71,7 +71,7 @@ class Mathematical
           source_modified = true
         end
 
-        eq_data.gsub! '\]', "]"
+        eq_data.gsub! '\]', ']'
         subs = m[1].nil_or_empty? ? (to_html ? [:specialcharacters] : []) : (node.resolve_pass_subs m[1])
         eq_data = node.apply_subs eq_data, subs unless subs.empty?
         img = Image.generate_inline eq_data, nil, self
