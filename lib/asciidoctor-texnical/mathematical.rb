@@ -52,34 +52,34 @@ class Mathematical
   end
 
   def handle_inline_stem(node, text)
-    # document = node.document
-    # to_html = document.basebackend? "html"
-    # support_stem_prefix = document.attr? "stem", "latexmath"
-    # stem_rx = support_stem_prefix ? STEM_INLINE_MACRO_RX : LATEX_INLINE_MACRO_RX
+    document = node.document
+    to_html = document.basebackend? "html"
+    support_stem_prefix = document.attr? "stem", "latexmath"
+    stem_rx = support_stem_prefix ? STEM_INLINE_MACRO_RX : LATEX_INLINE_MACRO_RX
 
-    # source_modified = false
-    # # TODO: skip passthroughs in the source (e.g., +stem:[x^2]+)
-    # if !text.nil? && (text.include? ":") && ((support_stem_prefix && (text.include? "stem:")) || (text.include? "latexmath:"))
-    #   text.gsub!(stem_rx) do
-    #     if (m = $LAST_MATCH_INFO)[0].start_with? '\\'
-    #       next m[0][1..-1]
-    #     end
+    source_modified = false
+    # TODO: skip passthroughs in the source (e.g., +stem:[x^2]+)
+    if !text.nil? && (text.include? ":") && ((support_stem_prefix && (text.include? "stem:")) || (text.include? "latexmath:"))
+      text.gsub!(stem_rx) do
+        if (m = $LAST_MATCH_INFO)[0].start_with? '\\'
+          next m[0][1..-1]
+        end
 
-    #     if (eq_data = m[2].rstrip).empty?
-    #       next
-    #     else
-    #       source_modified = true
-    #     end
+        if (eq_data = m[2].rstrip).empty?
+          next
+        else
+          source_modified = true
+        end
 
-    #     eq_data.gsub! '\]', "]"
-    #     subs = m[1].nil_or_empty? ? (to_html ? [:specialcharacters] : []) : (node.resolve_pass_subs m[1])
-    #     eq_data = node.apply_subs eq_data, subs unless subs.empty?
-    #     img_target, img_width, img_height = make_equ_image eq_data, nil, true
-    #     %(image:#{img_target}[width=#{img_width},height=#{img_height}])
-    #   end
-    # end
+        eq_data.gsub! '\]', "]"
+        subs = m[1].nil_or_empty? ? (to_html ? [:specialcharacters] : []) : (node.resolve_pass_subs m[1])
+        eq_data = node.apply_subs eq_data, subs unless subs.empty?
+        img = Image.generate_inline eq_data, nil, self
+        %(image:#{img.target_path}[width=#{img.width},height=#{img.height}])
+      end
+    end
 
-    # [text, source_modified]
+    [text, source_modified]
   end
 
   attr_reader :image_output_dir

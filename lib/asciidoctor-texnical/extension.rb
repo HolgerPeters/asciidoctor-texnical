@@ -22,13 +22,13 @@ class TexnicalTreeprocessor < Asciidoctor::Extensions::Treeprocessor
       end
     end
 
-    # unless (prose_blocks = document.find_by do |b|
-    #   (b.content_model m= :simple && (b.subs.include? :macros)) || b.context == :list_item
-    # end).nil_or_empty?
-    #   prose_blocks.each do |prose|
-    #     texnical.handle_prose_block prose, self
-    #   end
-    # end
+    unless (prose_blocks = document.find_by do |b|
+      (b.content_model = :simple && (b.subs.include? :macros)) || b.context == :list_item
+    end).nil_or_empty?
+      prose_blocks.each do |prose|
+        texnical.handle_prose_block prose, self
+      end
+    end
     nil
   end
 end
