@@ -15,8 +15,6 @@ class Mathematical
     @image_target_dir = image_target_dir
   end
 
-  def to_file(path); end
-
   def handle_prose_block(prose, _processor)
     text = prose.context == :list_item ? (prose.instance_variable_get :@text) : (prose.lines * LINE_FEED)
     text, source_modified = handle_inline_stem prose, text
@@ -40,8 +38,8 @@ class Mathematical
     attrs = { 'target' => result.filename,
               'alt' => alt_text,
               'align' => 'center',
-              'width' => result.width.to_s,
-              'height' => result.height.to_s }
+              'width' => (result.width * 0.5).to_s,
+              'height' => (result.height * 0.5).to_s }
 
     stem_image = processor.create_image_block stem.parent, attrs
     stem_image.id = stem.id if stem.id
@@ -75,13 +73,13 @@ class Mathematical
         subs = m[1].nil_or_empty? ? (to_html ? [:specialcharacters] : []) : (node.resolve_pass_subs m[1])
         eq_data = node.apply_subs eq_data, subs unless subs.empty?
         img = Image.generate_inline eq_data, nil, self
-        %(image:#{img.target_path}[width=#{img.width},height=#{img.height}])
+        %(image:#{img.filename}[width=#{img.width},height=#{img.height}])
       end
     end
 
     [text, source_modified]
   end
 
-  attr_reader :image_output_dir
   attr_reader :image_target_dir
+  attr_reader :ppi
 end

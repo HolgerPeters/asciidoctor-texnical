@@ -13,61 +13,43 @@ HEADER = '\documentclass[12pt]{article}
     \usepackage{bm}
     \pagestyle{empty}'
 
+# The Image class represents an image that is generated from a latex equation expression.
 class Image
   def self.generate_inline(equ_data, equ_id, handler)
-    generate(%($#{equ_data}$), equ_id, handler)
+    Image.new %($#{equ_data}$), equ_id, handler
   end
 
   def self.generate_block(equ_data, equ_id, handler)
-    generate(%($$#{equ_data}$$), equ_id, handler)
+    Image.new %($$#{equ_data}$$), equ_id, handler
   end
 
-  def self.generate(input, equ_id, handler)
-    width = 100
-    height = 100
-
+  def initialize(input, equ_id, handler)
     equ_id ||= %(stem-#{::Digest::MD5.hexdigest input})
-    img_filename = %(#{equ_id}.png)
-    # img_filepth = ::File.join handler.image_output_dir, img_target_filename
-    content = "#{HEADER}\\begin{document} #{input}\\end{document} "
+    @filename = %(#{equ_id}.png)
     target_path = File.absolute_path handler.image_target_dir
     dir = Dir.mktmpdir
-    tpth = File.join dir, img_filename
-    stdout = ''
+    tpth = File.join dir, @filename
     Dir.chdir(dir) do
-      File.open('eq.tex', 'w') { |file| file.write(content) }
-      Open3.popen3('latex -interaction=batchmode eq.tex') do |_stdin, _stdout, _stderr, wait_thr|
-        raise ValueError if wait_thr.value != 0
-      end
-      stdout, = Open3.capture2("dvipng -o #{tpth} -T tight -z9 -D 400 -q --height --width eq.dvi")
+      generate_png(input, tpth, handler.ppi)
       FileUtils.cp(tpth, target_path)
     end
-
-    img_target = ::File.join handler.image_target_dir, img_filename
-    width, height = extract_dimensions_from_output(stdout)
-    Image.new input, width, height, img_target, img_filename
   end
 
-  def self.extract_dimensions_from_output(captured_stdout)
-    height = captured_stdout.scan(/height=-?(\d+)/)
-    width = captured_stdout.scan(/width=(\d+)/)
-    [width[0][0].to_i, height[0][0].to_i]
+  def generate_png(input, pth, ppi)
+    File.open('eq.tex', 'w') do |file|
+      file.write("#{HEADER}\\begin{document} #{input}\\end{document} ")
+    end
+    _ = Open3.capture2('latex -interaction=batchmode eq.tex')
+    stdout, = Open3.capture2("dvipng -o #{pth} -T tight -z9 -D #{ppi} -q --height --width eq.dvi")
+    extract_dimensions_from_output(stdout)
   end
 
-  def initialize(input, width, height, img_target, img_filename)
-    @width = width
-    @height = height
-    @input = input
-    @target_path = img_target
-    @filename = img_filename
+  def extract_dimensions_from_output(captured_stdout)
+    @height = captured_stdout.scan(/height=-?(\d+)/)[0][0].to_i
+    @width = captured_stdout.scan(/width=(\d+)/)[0][0].to_i
   end
 
   attr_reader :width
   attr_reader :height
-  attr_reader :target_path
   attr_reader :filename
-
-  def raw_data
-    nil
-  end
 end
