@@ -22,13 +22,15 @@ class TexnicalTreeprocessor < Asciidoctor::Extensions::Treeprocessor
       end
     end
 
-    # unless (prose_blocks = document.find_by do |b|
-    #   (b.content_model = :simple && (b.subs.include? :macros)) || b.context == :list_item
-    # end).nil_or_empty?
-    #   prose_blocks.each do |prose|
-    #     texnical.handle_prose_block prose, self
-    #   end
-    # end
+    prose_blocks = document.find_by do |b|
+      (b.content_model == :simple && (b.subs.include? :macros)) || b.context == :list_item
+    end
+
+    unless prose_blocks.nil_or_empty?
+      prose_blocks.each do |prose|
+        texnical.handle_prose_block prose
+      end
+    end
     # # handle table cells of the "asciidoc" type, as suggested by mojavelinux
     # # at asciidoctor/asciidoctor-mathematical#20.
     # unless (table_blocks = document.find_by context: :table).nil_or_empty?

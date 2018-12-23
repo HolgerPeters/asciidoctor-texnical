@@ -7,7 +7,6 @@ require 'pathname'
 
 class Mathematical
   STEM_INLINE_MACRO_RX = /\\?(?:stem|latexmath):([a-z,]*)\[(.*?[^\\])\]/m.freeze
-  LATEX_INLINE_MACRO_RX = /\\?latexmath:([a-z,]*)\[(.*?[^\\])\]/m.freeze
   LINE_FEED = %(\n)
 
   def initialize(ppi, image_target_dir)
@@ -15,15 +14,15 @@ class Mathematical
     @image_target_dir = image_target_dir
   end
 
-  def handle_prose_block(prose, _processor)
-    text = prose.context == :list_item ? (prose.instance_variable_get :@text) : (prose.lines * LINE_FEED)
-    text, source_modified = handle_inline_stem prose, text
-    if source_modified
-      if prose.context == :list_item
-        prose.instance_variable_set :@text, text
-      else
-        prose.lines = text.split LINE_FEED
-      end
+  def handle_prose_block(prose)
+    if prose.context == :list_item
+      text = prose.instance_variable_get :@text
+      text_new = handle_inline_stem prose, text
+      prose.instance_variable_set :@text, text_new unless text_new.nil?
+    else
+      text = prose.lines * LINE_FEED
+      text_new = handle_inline_stem prose, text
+      prose.lines = text_new.split LINE_FEED unless text_new.nil?
     end
   end
 
@@ -49,35 +48,18 @@ class Mathematical
     stem.parent.blocks[stem.parent.blocks.index stem] = stem_image
   end
 
-  def handle_inline_stem(node, text)
-    document = node.document
-    to_html = document.basebackend? 'html'
-    support_stem_prefix = document.attr? 'stem', 'latexmath'
-    stem_rx = support_stem_prefix ? STEM_INLINE_MACRO_RX : LATEX_INLINE_MACRO_RX
-
+  def handle_inline_stem(_node, text)
     source_modified = false
-    # TODO: skip passthroughs in the source (e.g., +stem:[x^2]+)
-    if !text.nil? && (text.include? ':') && ((support_stem_prefix && (text.include? 'stem:')) || (text.include? 'latexmath:'))
-      text.gsub!(stem_rx) do
-        if (m = $LAST_MATCH_INFO)[0].start_with? '\\'
-          next m[0][1..-1]
-        end
-
-        if (eq_data = m[2].rstrip).empty?
-          next
-        else
-          source_modified = true
-        end
-
-        eq_data.gsub! '\]', ']'
-        subs = m[1].nil_or_empty? ? (to_html ? [:specialcharacters] : []) : (node.resolve_pass_subs m[1])
-        eq_data = node.apply_subs eq_data, subs unless subs.empty?
-        img = Image.generate_inline eq_data, nil, self
-        %(image:#{img.filename}[width=#{img.width},height=#{img.height}])
+    if !text.nil? && (text.include? ':') && ((text.include? 'stem:') || (text.include? 'latexmath:'))
+      text.gsub!(STEM_INLINE_MACRO_RX) do
+        eq_id = Regexp.last_match[1] unless Regexp.last_match[1].nil_or_empty?
+        eq_data = Regexp.last_match[2]
+        source_modified = true
+        img = Image.generate_inline eq_data, eq_id, self
+        "image:#{img.filename}[width=#{img.width * 0.5},height=#{img.height * 0.5}]"
       end
     end
-
-    [text, source_modified]
+    text if source_modified
   end
 
   attr_reader :image_target_dir
