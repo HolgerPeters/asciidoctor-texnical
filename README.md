@@ -1,5 +1,7 @@
 # asciidoctor-texnical
 
+[![Gem Version](https://img.shields.io/gem/v/asciidoctor-texnical.svg)](http://rubygems.org/gems/asciidoctor-texnical)
+
 Typeset equations with latex in your asciidoc-documents. It is an alternative to
 [asciidoctor-mathematical][asciidoctor-mathematical].
 
