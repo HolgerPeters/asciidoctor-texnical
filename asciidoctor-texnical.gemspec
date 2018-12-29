@@ -18,9 +18,8 @@ Gem::Specification.new do |s|
              'lib/asciidoctor-texnical.rb']
   s.homepage = 'https://github.com/HolgerPeters/asciidoctor-texnical'
   s.license = 'MIT'
-  s.add_dependency 'ruby-enum', '~> 0.4'
   s.add_runtime_dependency 'asciidoctor', '~> 1.4'
   s.add_development_dependency 'asciidoctor-pdf', '~> 1.4'
-  s.add_development_dependency 'rake'
-  s.add_development_dependency 'rspec'
+  s.add_development_dependency 'rake', '~> 12'
+  s.add_development_dependency 'rspec', '~> 3'
 end
