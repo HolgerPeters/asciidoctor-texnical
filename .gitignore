@@ -4,3 +4,6 @@
 *.gem
 .ruby-version
 Rakefile
+sample.html
+sample.pdf
+images/
