@@ -6,7 +6,7 @@ require File.expand_path('lib/asciidoctor-texnical/version',
 Gem::Specification.new do |s|
   s.name = 'asciidoctor-texnical'
   s.version = Asciidoctor::Texnical::VERSION
-  s.date = '2017-01-09'
+  s.date = '2018-12-29'
   s.summary = 'Asciidoctor STEM processor shelling out to latex'
   s.description = 'An Asciidoctor extension to converts latexmath equations to SVG or PNGs'
   s.authors = ['Holger Peters', 'Tobias Stumm', 'Zhang Yang', 'Dan Allen']
@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.license = 'MIT'
   s.add_dependency 'ruby-enum', '~> 0.4'
   s.add_runtime_dependency 'asciidoctor', '~> 1.4'
-  s.add_runtime_dependency 'asciidoctor-pdf', '~> 1.4'
+  s.add_development_dependency 'asciidoctor-pdf', '~> 1.4'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec'
 end
