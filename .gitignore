@@ -1,3 +1,6 @@
 /.bundle/
 /Gemfile.lock
 /pkg/
+*.gem
+.ruby-version
+Rakefile
