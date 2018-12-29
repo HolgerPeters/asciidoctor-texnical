@@ -11,6 +11,7 @@ class Mathematical
 
   def initialize(ppi, image_target_dir)
     @ppi = ppi
+    @scale = 96.0 / ppi
     @image_target_dir = image_target_dir
   end
 
@@ -37,8 +38,8 @@ class Mathematical
     attrs = { 'target' => result.filename,
               'alt' => alt_text,
               'align' => 'center',
-              'width' => (result.width * 0.5).to_s,
-              'height' => (result.height * 0.5).to_s }
+              'width' => (result.width * @scale).to_s,
+              'height' => (result.height * @scale).to_s }
 
     stem_image = processor.create_image_block stem.parent, attrs
     stem_image.id = stem.id if stem.id
@@ -56,7 +57,7 @@ class Mathematical
         eq_data = Regexp.last_match[2]
         source_modified = true
         img = Image.generate_inline eq_data, eq_id, self
-        "image:#{img.filename}[width=#{img.width * 0.5},height=#{img.height * 0.5}]"
+        "image:#{img.filename}[width=#{img.width * @scale},height=#{img.height * @scale}]"
       end
     end
     text if source_modified

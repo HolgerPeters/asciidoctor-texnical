@@ -3,6 +3,7 @@
 :imagesoutdir: generated_images
 :imagesdir: images
 :stem: latexmath
+:texnical-ppi: 1200
 
 == Equations in normal blocks
 
